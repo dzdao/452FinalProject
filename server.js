@@ -46,6 +46,6 @@ app.post("/", urlencodedParser, function (req, res) {
 	res.end();
 });
 
-server.listen(8888, function (){
+server.listen(process.env.PORT || 8888, function (){
 	console.log("server listening on port 8888");
 });
