@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Sample NodeJS ExpressJS</title>
+
+	<script src="/socket.io/socket.io.js"></script>
+	<script src="https://code.jquery.com/jquery-2.2.3.min.js" integrity="sha256-a23g1Nt4dtEYOj7bR+vTu7+T8VP13humZFBJNIYoEJo=" crossorigin="anonymous"></script>
+
+	<style type="text/css">
+		#error {
+			color: red;
+		}
+
+		#chat {
+			border: solid;
+			height: 500px;
+			width: 500px;
+		}
+
+		.nicknames {
+			color: blue;
+		}
+
+		.myNickname {
+			color: orange;
+		}
+	</style>
+</head>
+<body>
+	<h1>Hello world!</h1>
+
+	<div id="usernameWrap">
+		Username: <input id="username" name="name"></input>
+		<button id="setUserName" type="submit">Set</button>	
+	</div>
+	
+	<p id="greeting"></p>
+
+	<p id="error"></p>
+
+	<div id="chatWrap">
+		<div id="chat"></div>
+		<input id="chatMessage"></input>
+		<button id="sendMessage" type="submit">Send</button>
+	</div>
+
+	<script>
+		var errorField = $("#error");
+		var username = $("#username");
+		var greetingBox = $("#greeting");
+		var chatMessage = $("#chatMessage");
+		var chatBox = $("#chat");
+		var setBtn = $("#setUserName");
+		var sendBtn = $("#sendMessage");
+
+		var clientUserName = "";
+
+		var socket = io();
+
+		// Respond to the set username event.
+		socket.on("set username", function (data) {
+			if (data.length !== 0) {
+				greetingBox.html("Welcome <span class='nicknames'>" + data + "</span>!");
+				errorField.html("");
+				clientUserName = data;
+			}
+			else {
+				errorField.html("Error setting username");
+			}
+		});
+
+		// Respond to receiving a new message on the chat.
+		socket.on("new chat message", function (data) {
+			var clazz;
+			if (data.username === clientUserName) 
+				clazz = "myNickname";
+			else 
+				clazz = "nicknames";
+			
+			chatBox.append("<span class=" + clazz + "><b>" + data.username + "</b></span>: " + data.message + " <br>");
+		});
+
+		// When the set button is clicked, send the username over to the server to register.
+		setBtn.click(function (){
+			if (username.val().length !== 0) {
+				socket.emit("register username", {'username': username.val()});
+
+				errorField.html("");
+				username.val("");
+				$("#usernameWrap").hide();
+			}
+			else {
+				errorField.html("Invalid username, try again.");
+			}
+		});
+
+		// Send over the chat message to the server.
+		sendBtn.click(function (){
+			if (clientUserName.length !== 0) {
+				if (chatMessage.val().length !== 0) {
+					socket.emit("send chat message", {'username': clientUserName, 'message': chatMessage.val()});
+					
+					errorField.html("");
+					chatMessage.val("");
+				}
+				else {
+					errorField.html("Message cannot be empty.");
+				}
+			}
+			else {
+				errorField.html("Please register a username first.");
+			}
+		});
+	</script>
+
+</body>
+</html>
