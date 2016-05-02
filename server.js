@@ -91,12 +91,12 @@ passport.use(new Strategy(
 
 		// Find the user by username from the records array.
 		for (var i = records.length - 1; i >= 0; i--) {
-			if (records[i].username === username) {
+			if (records[i].username === username && 
+				records[i].password == password) {
 				return done(null, records[i]);
 			}
-			console.log("Checking record " + i + ": " + records[i].username);
 		}
-		return done(new Error("User " + username + " does not exit."));
+		return done(null, false);
 }));
 
 // Called by req.login().
