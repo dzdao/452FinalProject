@@ -1,0 +1,48 @@
+doctype html
+html
+	head
+	title Secure Chat 0.0.1
+	
+	script(src='/socket.io/socket.io.js')
+	
+	script(src='https://code.jquery.com/jquery-2.2.3.min.js', integrity='sha256-a23g1Nt4dtEYOj7bR+vTu7+T8VP13humZFBJNIYoEJo=', crossorigin='anonymous')
+	
+	style(type='text/css').
+		#error {
+		color: red;
+		}
+		#chat {
+		border: solid;
+		height: 500px;
+		width: 500px;
+		}
+		.nicknames {
+		color: blue;
+		}
+		.myNickname {
+		color: orange;
+		}
+	body
+		h1 Welcome To Secure Chat!
+
+		if user === undefined
+			a(href='/login') Login
+		else
+			h2 
+				| Welcome 
+				span.myNickname #{user.username}
+				| !
+			a(href="/logout") Logout
+
+			br
+
+			p#greeting
+
+			p#error
+
+			div#chatWrap
+				div#chat
+				input#chatMessage
+				button#sendMessage(type='submit') Send
+
+			script(src='/index.js')
