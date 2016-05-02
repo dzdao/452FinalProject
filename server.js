@@ -73,6 +73,7 @@ function authorizeFail(data, message, error, accept) {
 	return accept();
 }
 
+// TODO: Remove this when mongodb is implemented.
 // Define test user login records.
 records = [
 	{
@@ -88,6 +89,8 @@ records = [
 // http://toon.io/understanding-passportjs-authentication-flow/
 passport.use(new Strategy(
 	function (username, password, done) {
+
+		// TODO: Change this to query mongodb instead of predefined array.
 
 		// Find the user by username from the records array.
 		for (var i = records.length - 1; i >= 0; i--) {
@@ -105,6 +108,9 @@ passport.serializeUser(function (user, callback) {
 });
 
 passport.deserializeUser(function (id, callback) {
+
+	// TODO: Change this to query mongodb instead of predefined array.
+	
 	// Find the user by id from the records array.
 	for (var i = records.length - 1; i >= 0; i--) {
 		if (records[i].id === id) {
@@ -136,10 +142,16 @@ app.get("/logout", function (req, res) {
 app.get("/login", function (req, res) {
 
 	var message;
-	if (req.user === undefined) { message = "Please login"; }
-	else { message = "Welcome " + req.user.username + "!"; }
+	if (req.isAuthenticated()) { message = "Welcome " + req.user.username + "!"; }
+	else { message = "Please login"; }
 
 	res.render("login", {message: message});
+});
+
+// This is the reregistration page.
+app.get("/register", function (req, res) {
+	if (req.isAuthenticated()) { res.redirect("/"); }
+	else { res.render("register", {}); }
 });
 
 // Handle the user submitting the login form.
@@ -151,6 +163,41 @@ app.post("/login",
 		console.log("Cookie will expire in " + req.session.cookie.maxAge + " seconds");
 	}
 );
+
+// Handle user registration.
+app.post("/register", function (req, res) {
+
+	// bodyParser middleware allows us to access the body of the request object.
+	console.log("Username: " + req.body['username']);
+	console.log("Password: " + req.body['password']);
+
+	// TODO: Implement the below code for mongodb for user account creation.
+
+	// //Create user account object.
+	// var userAcc = {
+	// 		id: need to figure something out here
+	// 		username: req.body['username'], 
+	// 		password: req.body['password']
+	// }
+	
+	// //Find if username is already taken.
+	// // .next() will return null if there's no results.
+	// if (mongodb.find({username: userAcc.username}).limit(1).next() !== null) {
+	// 		console.log("Username is already taken");
+	// }
+	// else {
+	// 		mongodb.insertOne(userAcc, function (error, result) {
+			
+	// 			//http://mongodb.github.io/node-mongodb-native/2.0/api/Collection.html#~insertOneWriteOpCallback
+	// 			if (error) console.log("Error creating new user account");
+	// 			else if (result.ok) {
+	// 				console.log("Successfully created new account");
+	// 				//Perform authentication and redirect user back to home page.			
+	// 			}
+	// 			else console.log("Something really strange happened with MongoDB");
+	// 			});
+	// }
+});
 
 
 /**
